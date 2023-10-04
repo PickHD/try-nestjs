@@ -1,0 +1,39 @@
+version: '3.5'
+
+services:
+  db:
+    image: postgres:14.1-alpine
+    container_name: db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+    networks:
+      - nest-dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app_auth
+    environment:
+      - APP_MODE=development
+    ports:
+      - '${APP_PORT}:${APP_PORT}'
+    networks:
+      - nest-dev
+    depends_on:
+      - db
+    volumes:
+      - ./src:/app/src
+
+networks:
+  nest-dev:
+    driver: bridge
+volumes:
+    postgres_data:
+      driver: local

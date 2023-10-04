@@ -4,6 +4,8 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from 'src/users/users.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { UsersModule } from 'src/users/users.module';
       }),
       inject: [ConfigService],
     }),
+    CacheModule.register(),
+    MulterModule.register(),
   ],
   controllers: [AuthController],
   providers: [AuthService],

@@ -16,7 +16,7 @@ export class User {
 
   @Column({
     nullable: false,
-    default: '',
+    unique: true,
   })
   email: string;
 
@@ -24,4 +24,11 @@ export class User {
     nullable: false,
   })
   password: string;
+
+  @Column({
+    type: 'text',
+    name: 'avatar_url',
+    nullable: true,
+  })
+  avatarUrl: string;
 }
