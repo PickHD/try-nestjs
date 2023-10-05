@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RegisterDto, UpdateProfileDto } from 'src/auth/dto/auth.dto';
+import { ValidationError } from 'src/error/validation.error';
 import { HashPassword } from 'src/helper/hash';
 import { User } from 'src/typeorm';
 import { Repository } from 'typeorm';
@@ -18,7 +19,7 @@ export class UsersService {
       },
     });
     if (check) {
-      throw new Error('email already exists');
+      throw new ValidationError('email already exists');
     }
 
     const newUser = this.userRepository.create(user);
