@@ -15,6 +15,8 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { User } from 'src/typeorm';
 import { promises as fsPromises } from 'fs';
+import { NotFoundError } from 'src/error/notfound.error';
+import { ValidationError } from 'src/error/validation.error';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -34,15 +36,13 @@ export class AuthService implements IAuthService {
   async verify(req: LoginDto): Promise<LoginResponse> {
     const getUser = await this.userService.findByEmail(req.email);
     if (!getUser) {
-      this.logger.log('user not found');
-      throw new Error('user not found');
+      throw new NotFoundError('user not found');
     }
 
     const isMatch = await VerifyPassword(getUser.password, req.password);
 
     if (!isMatch) {
-      this.logger.log('password invalid');
-      throw new Error('password invalid');
+      throw new ValidationError('password invalid');
     }
 
     const payload = {
@@ -65,9 +65,7 @@ export class AuthService implements IAuthService {
       this.logger.debug('retrieve data from database...');
       const getUser = await this.userService.findById(id);
       if (!getUser) {
-        this.logger.log(`user not found`);
-
-        throw new Error('user not found');
+        throw new NotFoundError('user not found');
       }
 
       await this.cacheManager.set(
@@ -83,7 +81,7 @@ export class AuthService implements IAuthService {
       };
     }
 
-    this.logger.debug('get from cache');
+    this.logger.debug('get from cache...');
     return {
       id: value.id,
       fullName: value.fullName,

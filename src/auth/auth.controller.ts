@@ -40,6 +40,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { ValidationError } from 'src/error/validation.error';
+import { NotFoundError } from 'src/error/notfound.error';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -47,10 +49,8 @@ export class AuthController implements IAuthController {
   private readonly logger = new Logger();
   constructor(private readonly authService: AuthService) {}
 
-  @ApiResponse({
-    status: 201,
-    description: 'Created.',
-  })
+  @ApiResponse({ status: 201, description: 'Created.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 422, description: 'Unprocessable Entity.' })
   @Post('/register')
   @HttpCode(201)
@@ -62,14 +62,18 @@ export class AuthController implements IAuthController {
       return result;
     } catch (error) {
       this.logger.error(error.message);
+
+      if (error instanceof ValidationError) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+
       throw new HttpException(error.message, HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
 
-  @ApiResponse({
-    status: 200,
-    description: 'OK.',
-  })
+  @ApiResponse({ status: 200, description: 'OK.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 404, description: 'Data Not Found.' })
   @ApiResponse({ status: 422, description: 'Unprocessable Entity.' })
   @Post('/login')
   @HttpCode(200)
@@ -81,15 +85,21 @@ export class AuthController implements IAuthController {
       return result;
     } catch (error) {
       this.logger.error(error.message);
+      if (error instanceof ValidationError) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+
+      if (error instanceof NotFoundError) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      }
+
       throw new HttpException(error.message, HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
 
-  @ApiResponse({
-    status: 200,
-    description: 'OK.',
-  })
+  @ApiResponse({ status: 200, description: 'OK.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 404, description: 'Data Not Found.' })
   @ApiResponse({ status: 422, description: 'Unprocessable Entity.' })
   @ApiBearerAuth()
   @Get('/profile')
@@ -102,14 +112,16 @@ export class AuthController implements IAuthController {
       return result;
     } catch (error) {
       this.logger.error(error.message);
+
+      if (error instanceof NotFoundError) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      }
+
       throw new HttpException(error.message, HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
 
-  @ApiResponse({
-    status: 204,
-    description: 'No Content.',
-  })
+  @ApiResponse({ status: 204, description: 'No Content.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 422, description: 'Unprocessable Entity.' })
   @ApiBearerAuth()
@@ -133,10 +145,8 @@ export class AuthController implements IAuthController {
     }
   }
 
-  @ApiResponse({
-    status: 200,
-    description: 'OK.',
-  })
+  @ApiResponse({ status: 200, description: 'OK.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 422, description: 'Unprocessable Entity.' })
   @ApiBearerAuth()
@@ -144,9 +154,7 @@ export class AuthController implements IAuthController {
   @HttpCode(200)
   @UseGuards(AuthGuard)
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    type: FileUploadDto,
-  })
+  @ApiBody({ type: FileUploadDto })
   @UseInterceptors(FileInterceptor('file'))
   async uploadAvatar(
     @Request()
