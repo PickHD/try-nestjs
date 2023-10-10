@@ -15,6 +15,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { User } from 'src/typeorm';
 import { promises as fsPromises } from 'fs';
+import * as fs from 'fs';
 import { NotFoundError } from 'src/error/notfound.error';
 import { ValidationError } from 'src/error/validation.error';
 
@@ -125,6 +126,12 @@ export class AuthService implements IAuthService {
 
   private async saveFile(filePath: string, data: Buffer): Promise<void> {
     try {
+      // check directory public uploads is already exists or not, if not system will create the folder
+      if (!fs.existsSync('public/uploads')) {
+        fs.mkdirSync('public');
+        fs.mkdirSync('public/uploads');
+      }
+
       await fsPromises.writeFile(filePath, data);
       return;
     } catch (error) {
