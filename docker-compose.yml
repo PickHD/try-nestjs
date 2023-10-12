@@ -19,7 +19,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: app_auth
+    container_name: app
     ports:
       - '${APP_PORT}:${APP_PORT}'
     networks:
