@@ -46,7 +46,7 @@ import { NotFoundError } from 'src/error/notfound.error';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController implements IAuthController {
-  private readonly logger = new Logger();
+  private readonly logger: Logger = new Logger();
   constructor(private readonly authService: AuthService) {}
 
   @ApiResponse({ status: 201, description: 'Created.' })
