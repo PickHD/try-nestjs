@@ -9,10 +9,11 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .addBearerAuth()
-    .setTitle('Auth Services')
-    .setDescription('contain API register,login,profile, etc.')
+    .setTitle('Try Services')
+    .setDescription('contain various API for learn purposes')
     .setVersion('1.0')
     .addTag('auth')
+    .addTag('books')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
